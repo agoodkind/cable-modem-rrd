@@ -1,6 +1,8 @@
 LOGIN=$(curl https://192.168.100.1/Login.htm -vks -c cookies.txt)
 CODE=$(echo $LOGIN | sed -e 's/.*Login?id=//' -e 's/".*//')
-
+CM_FILEPATH=${CM_FILEPATH:-"./CableInfo.txt"}
+MODEM_HOST=${MODEM_HOST:-"192.168.100.1"}
+MODEM_PW=${MODEM_PW:-"password"}
 
 echo "\n\n\n\n\n"
 # echo "$LOGIN"
@@ -8,7 +10,7 @@ echo "\n\n\n\n\n"
 # echo "login code: $CODE"
 # echo "\n\n\n\n\n"
 
-LOGIN=$(curl "https://192.168.100.1/goform/Login?id=$CODE" -Lkvs -b cookies.txt \
+LOGIN=$(curl "https://$MODEM_HOST/goform/Login?id=$CODE" -Lkvs -b cookies.txt \
   -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
   -H 'Accept-Language: en-US,en;q=0.9,fr;q=0.8,ar;q=0.7' \
   -H 'Cache-Control: max-age=0' \
@@ -27,7 +29,7 @@ LOGIN=$(curl "https://192.168.100.1/goform/Login?id=$CODE" -Lkvs -b cookies.txt 
   --data-raw "loginName=admin&loginPassword=$MODEM_PW")
 
 
-curl 'https://192.168.100.1/CableInfo.txt' \
+curl "https://$MODEM_HOST/CableInfo.txt" \
   -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
   -H 'Accept-Language: en-US,en;q=0.9,fr;q=0.8,ar;q=0.7' \
   -H 'Cache-Control: max-age=0' \
@@ -43,5 +45,5 @@ curl 'https://192.168.100.1/CableInfo.txt' \
   -H 'sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"' \
   -H 'sec-ch-ua-mobile: ?0' \
   -H 'sec-ch-ua-platform: "macOS"' \
-  -Lkvs --output CableInfo.txt -b cookies.txt
+  -Lkvs --output $CM_FILEPATH -b cookies.txt
 # echo "login response: $LOGIN"
