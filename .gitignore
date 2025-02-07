@@ -134,4 +134,6 @@ celerybeat.pid
 .dmypy.json
 dmypy.json
 
-.db
+*.db
+CableInfo.txt
+.env

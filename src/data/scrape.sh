@@ -24,7 +24,7 @@ LOGIN=$(curl "https://192.168.100.1/goform/Login?id=$CODE" -Lkvs -b cookies.txt 
   -H 'sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"' \
   -H 'sec-ch-ua-mobile: ?0' \
   -H 'sec-ch-ua-platform: "macOS"' \
-  --data-raw 'loginName=admin&loginPassword=royalsky929')
+  --data-raw "loginName=admin&loginPassword=$MODEM_PW")
 
 
 curl 'https://192.168.100.1/CableInfo.txt' \

@@ -4,7 +4,6 @@ import sqlite3
 from datetime import datetime
 import re
 from dataclasses import dataclass
-from flask import Flask
 from vars import sqlconn, cable_info_file
 
 # %%

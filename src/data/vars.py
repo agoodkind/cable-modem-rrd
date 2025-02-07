@@ -1,12 +1,14 @@
 import os
 import sqlite3
 
-filepath = os.environ.get('CM_FILEPATH', 'CableInfo.txt')
-sqlite_db = os.environ.get('CM_SQLITE_DB', 'cable_modem.db')
-db_file = os.environ.get('DB_FILE', 'cable_modem.db')
+CM_FILEPATH = os.environ.get('CM_FILEPATH', 'CableInfo.txt')
+CM_SQLITE_DB = os.environ.get('CM_SQLITE_DB', 'cable_modem.db')
+MODEM_PW = os.environ.get('MODEM_PW')
+
+assert MODEM_PW, "MODEM_PW environment variable not set"
 
 def sqlconn():
-    return sqlite3.connect(db_file, check_same_thread=False)
+    return sqlite3.connect(CM_SQLITE_DB, check_same_thread=False)
 
 def cable_info_file():
-    return open(filepath, 'r')
+    return open(CM_FILEPATH, 'r')

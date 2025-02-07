@@ -2,6 +2,7 @@
 import re
 import requests
 import urllib3
+from vars import MODEM_PW
 
 # Disable insecure SSL warnings (similar to curl's -k option)
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -51,7 +52,7 @@ headers = {
 # The payload containing the login credentials
 payload = {
     "loginName": "admin",
-    "loginPassword": "royalsky929"
+    "loginPassword": MODEM_PW
 }
 
 login_response = session.post(login_url, data=payload, headers=headers, verify=False)
