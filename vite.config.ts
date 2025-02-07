@@ -5,18 +5,18 @@ import wasm from "vite-plugin-wasm";
 
 // https://vite.dev/config/
 export default defineConfig({
-	plugins: [react(), tailwindcss(), wasm()],
-	build: {
-		sourcemap: true,
-	},
-	root: "src/presentation",
-	server: {
-		proxy: {
-			"/api": {
-				target: "http://localhost:8000",
-				changeOrigin: true,
-				secure: false,
-			},
-		},
-	},
+  plugins: [react(), tailwindcss(), wasm()],
+  build: {
+    sourcemap: true,
+  },
+  root: "src/presentation",
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });
