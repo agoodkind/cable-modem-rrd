@@ -1,8 +1,5 @@
 from flask import Flask
-import sqlite3
-
-def sqlconn():
-    return sqlite3.connect('cable_modem.db', check_same_thread=False)
+from vars import sqlconn
 
 app = Flask(__name__)
 
@@ -44,5 +41,5 @@ def index():
     links = '\n'.join([f'<div><a href="{table_name}">{table_name}</a></div>' for table_name in get_tables()]) + '<div><a href="/api/listTables">List Tables</a><div>'
     return f"<html><body style=\"background-color: black; color: white\"><h1>Tables</h1>{links}</body></html>"
 
-
-app.run(host="0.0.0.0", port=8000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8000, debug=True)
