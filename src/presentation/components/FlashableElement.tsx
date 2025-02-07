@@ -1,25 +1,25 @@
 import clsx from "clsx";
 import type {
-	ComponentPropsWithoutRef,
-	ElementType,
-	PropsWithChildren,
+  ComponentPropsWithoutRef,
+  ElementType,
+  PropsWithChildren,
 } from "react";
 import { useEffect, useState } from "react";
 
 type PolymorphicAsProp<E extends ElementType> = {
-	as?: E;
+  as?: E;
 };
 
 type PolymorphicProps<E extends ElementType> = PropsWithChildren<
-	ComponentPropsWithoutRef<E> & PolymorphicAsProp<E>
+  ComponentPropsWithoutRef<E> & PolymorphicAsProp<E>
 >;
 
 const defaultElement = "div";
 
 type FlashableElementProps<E extends ElementType = typeof defaultElement> =
-	PolymorphicProps<E> & {
-		dependentVar?: unknown;
-	};
+  PolymorphicProps<E> & {
+    dependentVar?: unknown;
+  };
 
 /**
  *
@@ -28,29 +28,29 @@ type FlashableElementProps<E extends ElementType = typeof defaultElement> =
  * @returns a span element with yellow flash animation
  */
 function FlashableElement<E extends ElementType = typeof defaultElement>({
-	as,
-	children,
-	className,
-	dependentVar,
-	...restProps
+  as,
+  children,
+  className,
+  dependentVar,
+  ...restProps
 }: FlashableElementProps<E>) {
-	const Component = as ?? defaultElement;
+  const Component = as ?? defaultElement;
 
-	const [key, setKey] = useState<string>();
+  const [key, setKey] = useState<string>();
 
-	useEffect(() => {
-		setKey(crypto.randomUUID());
-	}, [dependentVar ?? children]);
+  useEffect(() => {
+    setKey(crypto.randomUUID());
+  }, [dependentVar ?? children]);
 
-	return (
-		<Component
-			key={key}
-			{...restProps}
-			className={clsx("animate-fade-yellow rounded", className)}
-		>
-			{children}
-		</Component>
-	);
+  return (
+    <Component
+      key={key}
+      {...restProps}
+      className={clsx("animate-fade-yellow rounded", className)}
+    >
+      {children}
+    </Component>
+  );
 }
 
 export default FlashableElement;
