@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
-import type { CableModemData, TableData, TableName } from "../dataTypes";
-import { isValidKey } from "../utils/typing";
-import FlashableElement from "./FlashableElement";
+import FlashableElement from "./components/FlashableElement";
+import type { CableModemData, TableData, TableName } from "./dataTypes";
+import { isValidKey } from "./utils/typing";
 
 const listTables = async () => {
 	const response = await fetch("/api/listTables");
@@ -21,7 +21,7 @@ const refreshTables = async (): Promise<CableModemData> => {
 	return await Promise.all(tableDataMapPromises);
 };
 
-function App() {
+function Presentation() {
 	const [tableData, setTableData] = useState<CableModemData>();
 	const [, setRefreshInterval] = useState<NodeJS.Timeout>();
 	const [refreshCount, setRefreshCount] = useState(0);
@@ -102,4 +102,4 @@ function App() {
 	);
 }
 
-export default App;
+export default Presentation;

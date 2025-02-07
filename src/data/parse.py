@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 from dataclasses import dataclass
 from flask import Flask
+from vars import sqlconn, cable_info_file
 
 # %%
 @dataclass
@@ -17,12 +18,7 @@ class CableData:
     upstream_ofdma_channels: pd.DataFrame
     # event_log: pd.DataFrame
 
-filepath = "CableInfo.txt"
-
-file = open(filepath, 'r')
-
-
-content = file.read()
+content = cable_info_file().read()
 
 
 # # Parse General Status
@@ -130,88 +126,12 @@ ofdma_downstream_section = content.split('Downstream OFDM Channels')[1].split('U
 ofdma_upstream_section = content.split('Upstream OFDMA Channels')[1].split('Event Log')[0]
 
 
-# %%
-# def create_tables(conn: sqlite3.Connection):
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS general_status (
-#         status_type TEXT PRIMARY KEY,
-#         status_value TEXT
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS startup_procedure (
-#         parameter TEXT PRIMARY KEY,
-#         value TEXT
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS downstream_channels (
-#         channel INTEGER,
-#         locked_status TEXT,
-#         modulation TEXT,
-#         channel_id INTEGER,
-#         frequency INTEGER,
-#         power REAL,
-#         snr REAL,
-#         correctables INTEGER,
-#         uncorrectables INTEGER,
-#         timestamp INTEGER NOT NULL
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS upstream_channels (
-#         channel INTEGER,
-#         locked_status TEXT,
-#         channel_type TEXT,
-#         channel_id INTEGER,
-#         symbol_rate TEXT,
-#         frequency INTEGER,
-#         power REAL,
-#         timestamp INTEGER NOT NULL
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS ofdm_channels (
-#         channel INTEGER,
-#         locked_status TEXT,
-#         profile_id TEXT,
-#         channel_id INTEGER,
-#         frequency INTEGER,
-#         power REAL,
-#         snr_mer REAL,
-#         active_subcarrier TEXT,
-#         unerror INTEGER,
-#         correctable INTEGER,
-#         uncorrectable INTEGER,
-#         timestamp INTEGER NOT NULL
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS ofdma_channels (
-#         channel INTEGER,
-#         locked_status TEXT,
-#         profile_id TEXT,
-#         channel_id INTEGER,
-#         frequency INTEGER,
-#         power REAL,
-#         timestamp INTEGER NOT NULL
-#     )''')
-    
-#     conn.execute('''
-#     CREATE TABLE IF NOT EXISTS event_log (
-#         timestamp TEXT,
-#         priority TEXT,
-#         description TEXT
-#     )''')
-
-
-
 
 
 
 # %%
 # Initialize database
-conn = sqlite3.connect('cable_modem.db')
+
 # create_tables(conn)
 
 # Parse file
@@ -235,35 +155,23 @@ cable_data = CableData(
     upstream_ofdma_channels=parse_section_into_df(ofdma_upstream_section),
     # event_log=event_df
 )
+with sqlconn() as conn:
 
-cable_data.downstream_bonded_channels.to_sql(
-    'downstream_bonded_channels', conn, if_exists='append', index=False
-)
+    cable_data.downstream_bonded_channels.to_sql(
+        'downstream_bonded_channels', conn, if_exists='append', index=False
+    )
 
-cable_data.upstream_bonded_channels.to_sql(
-    'upstream_bonded_channels', conn, if_exists='append', index=False
-)
+    cable_data.upstream_bonded_channels.to_sql(
+        'upstream_bonded_channels', conn, if_exists='append', index=False
+    )
 
-cable_data.downstream_ofdma_channels.to_sql(
-    'downstream_ofdma_channels', conn, if_exists='append', index=False
-)
+    cable_data.downstream_ofdma_channels.to_sql(
+        'downstream_ofdma_channels', conn, if_exists='append', index=False
+    )
 
-cable_data.upstream_ofdma_channels.to_sql(
-    'upstream_ofdma_channels', conn, if_exists='append', index=False
-)
+    cable_data.upstream_ofdma_channels.to_sql(
+        'upstream_ofdma_channels', conn, if_exists='append', index=False
+    )
 
-# cable_data.event_log.to_sql(
-#     'event_log', conn, if_exists='append', index=False
-# )
-
-conn.commit()
-tables = ['downstream_bonded_channels', 'upstream_bonded_channels', 'downstream_ofdma_channels', 'upstream_ofdma_channels']
-test = []
-for table in tables:
-     test.append(conn.execute(f"SELECT * FROM {table}").fetchall())
-
-
-conn.close()
-
-test
+    conn.commit()
 

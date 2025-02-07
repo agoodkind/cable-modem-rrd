@@ -25,6 +25,7 @@
 		"@types/sql.js": "^1.4.9",
 		"@vitejs/plugin-react-swc": "^3.5.0",
 		"eslint": "^9.17.0",
+		"eslint-plugin-prettier": "^5.2.3",
 		"eslint-plugin-react-hooks": "^5.0.0",
 		"eslint-plugin-react-refresh": "^0.4.16",
 		"globals": "^15.14.0",
@@ -34,10 +35,6 @@
 		"vite-plugin-wasm": "^3.4.1"
 	},
 	"pnpm": {
-		"ignoredBuiltDependencies": [
-			"@swc/core",
-			"esbuild"
-		],
 		"onlyBuiltDependencies": [
 			"@swc/core",
 			"esbuild"

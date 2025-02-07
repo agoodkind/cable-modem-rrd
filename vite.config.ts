@@ -9,6 +9,7 @@ export default defineConfig({
 	build: {
 		sourcemap: true,
 	},
+	root: "src/presentation",
 	server: {
 		proxy: {
 			"/api": {

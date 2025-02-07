@@ -15,13 +15,13 @@ export default tseslint.config(
 		],
 		files: ["**/*.{ts,tsx}"],
 		languageOptions: {
-			ecmaVersion: 2020,
+			ecmaVersion: "latest",
 			globals: globals.browser,
 		},
 		plugins: {
 			"react-hooks": reactHooks,
 			"react-refresh": reactRefresh,
-			prettier: prettier,
+			prettier,
 		},
 		rules: {
 			...reactHooks.configs.recommended.rules,
