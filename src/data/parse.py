@@ -8,9 +8,8 @@ import pandas as pd
 from vars import cable_info_file, sqlconn
 
 
-# %%
 @dataclass
-class CableData:
+class CableData(dict):
     # general_status: Dict[str, str]
     # startup_procedure: Dict[str, str]
     downstream_bonded_channels: pd.DataFrame
@@ -32,10 +31,12 @@ class CableData:
 #         key, value = line.split(':', 1)
 #         startup_procedure[key.strip()] = value.strip()
 
-
-# %%
 # to data frame
 def parse_section_into_df(section: str) -> pd.DataFrame:
+    """
+    Parse a section of the CableInfo.txt file into a DataFrame.
+    This is not valid for the Downstream OFDMA Channels section.
+    """
     lines = [line.strip() for line in section.split('\n') if line.strip()]
 
     columns = re.split(r'\s+', lines[0])
@@ -69,6 +70,7 @@ def parse_section_into_df(section: str) -> pd.DataFrame:
 
 def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
     """
+    Parse a section of the CableInfo.txt file into a DataFrame. Specific to the Downstream OFDMA Channels section.
         this exists because netgear and xfinity hates us
     """
 # Downstream OFDM Channels
@@ -113,10 +115,23 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
     return df
 
 
-# %%
-def parse():
-    content = cable_info_file().read()
+def parse_from_file() -> CableData:
+    print("Parsing CableInfo.txt")
+    with cable_info_file() as file:
+        content = file.read()
 
+    return parse_to_cable_data(content)
+
+
+def parse_to_cable_data(content_bytes_or_str: bytes | str) -> CableData:
+    """
+    Parse the CableInfo.txt file and return a CableData object.
+    """
+
+    content = content_bytes_or_str.decode() if isinstance(
+        content_bytes_or_str, bytes) else content_bytes_or_str
+
+    print("Parsing CableInfo")
     # Parse Event Log
     # event_section = content.split('Event Log')[1]
     # event_pattern = r'((?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4}))\s+(\w+\s+\(\d+\))\s+(.+?)(?=(?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4})|$)'
@@ -151,20 +166,25 @@ def parse():
         upstream_ofdma_channels=parse_section_into_df(ofdma_upstream_section)
 
     )
-    # event_log=event_df
 
+    return cable_data
+
+
+def append_cable_data_to_db(cable_data: CableData):
+    """
+    Append the parsed cable data to the database.
+    """
+    print("Appending cable data to database")
     with sqlconn() as conn:
-
         tables = ["downstream_bonded_channels", "upstream_bonded_channels",
                   "downstream_ofdma_channels", "upstream_ofdma_channels"]
-
         for table in tables:
             cable_data[table].to_sql(
-                table, conn, if_exists='replace', index=False
+                table, conn, if_exists='append', index=False
             )
-
         conn.commit()
 
 
 if __name__ == "__main__":
-    parse()
+    cable_data = parse_from_file()
+    append_cable_data_to_db(cable_data)

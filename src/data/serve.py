@@ -1,7 +1,9 @@
-from flask import Flask
+from parse import append_cable_data_to_db, parse_to_cable_data
+from quart import Quart, abort
+from scrape import scrape_to_bytes
 from vars import sqlconn
 
-app = Flask(__name__)
+app = Quart(__name__)
 
 def get_tables():
     with sqlconn() as conn:
@@ -19,24 +21,49 @@ def transform_row(row, columns):
 
 def get_columns(table_name: str):
     with sqlconn() as conn:
-        columns = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        return conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+
+
+def get_table(table_name: str):
+    columns = get_columns(table_name)
+    with sqlconn() as conn:
         data = conn.execute(f"SELECT * FROM {table_name}").fetchall()
 
         return [transform_row(row, columns) for row in data]
 
-@app.route('/api/<table_name>')
-def table(table_name: str):
+
+@app.route('/api/tables/<table_name>/columns')
+async def columns(table_name: str):
     if table_name not in get_tables():
-        return f'Table {table_name} not found'
+        abort(404, f'Table {table_name} not found')
     else:
         return get_columns(table_name)
-    
-@app.route('/api/listTables')
+
+
+@app.route('/api/tables/<table_name>')
+async def table(table_name: str):
+    if table_name not in get_tables():
+        abort(404, f'Table {table_name} not found')
+    else:
+        return get_table(table_name)
+
+
+@app.route('/api/tables')
 def listTables():
     return get_tables()
-    
+
+
+@app.route('/api/scrape', methods=['POST'])
+async def scrapePost():
+    # scrape data
+    file_bytes = scrape_to_bytes()
+    cable_data = parse_to_cable_data(file_bytes)
+    append_cable_data_to_db(cable_data)
+    return 'Scraped and parsed data'
+
+
 @app.route('/')
-def index():
+async def index():
     # return list of <a href="table_name">table_name</a>
     links = '\n'.join([f'<div><a href="{table_name}">{table_name}</a></div>' for table_name in get_tables()]) + '<div><a href="/api/listTables">List Tables</a><div>'
     return f"<html><body style=\"background-color: black; color: white\"><h1>Tables</h1>{links}</body></html>"

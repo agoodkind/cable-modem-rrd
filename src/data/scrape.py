@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import re
+
 import requests
 import urllib3
-from vars import MODEM_PW, cable_info_file, MODEM_HOST
-
+from flask import session
+from vars import MODEM_HOST, MODEM_PW, cable_info_file
 
 LOGIN_PAGE_URL = f"https://{MODEM_HOST}/Login.htm"
 CABLEINFO_URL = f"https://{MODEM_HOST}/CableInfo.txt"
@@ -29,70 +30,84 @@ PAYLOAD = {
     "loginPassword": MODEM_PW
 }
 
-# ---------------------------
-# Step 1: Fetch Login Page and Extract Code
-# ---------------------------
 
-def fetch_login_page():
-    assert session is not None, "Session not initialized."
+def retrieve_login_code(session: requests.Session) -> str:
+    """
+    Fetch the login page and extract the login code.
+    """
     response = session.get(LOGIN_PAGE_URL, verify=False)
     if response.status_code != 200:
-        print("Failed to fetch the login page.")
-        exit(1)
+        raise Exception("Failed to fetch the login page. Status code:",
+                        response.status_code)
 
     # Extract the login code using regex similar to: sed -e 's/.*Login?id=//' -e 's/".*//'
     match = re.search(r'Login\?id=([^"]+)"', response.text)
     if not match:
-        print("Could not extract the login code.")
-        exit(1)
+        raise Exception("Could not extract the login code.")
+
     code = match.group(1)
     print("Login code extracted:", code)
     return code
 
-# ---------------------------
-# Step 2: Log In Using the Extracted Code
-# ---------------------------
 
+def retrieve_cable_info(login_code: str, session: requests.Session) -> bytes:
+    """
+    Log in to the modem using the login code and retrieve the CableInfo.txt file.
+    """
+    login_url = f"https://{MODEM_HOST}/goform/Login?id={login_code}"
+    login_response = session.post(
+        login_url, data=PAYLOAD, headers=HEADERS, verify=False)
 
-
-
-# The payload containing the login credentials
-
-
-def login(code):
-    login_url = f"https://{MODEM_HOST}/goform/Login?id={code}"
-    login_response = session.post(login_url, data=PAYLOAD, headers=HEADERS, verify=False)
     if login_response.status_code != 200:
-        print("Login failed.")
-        exit(1)
+        raise Exception("Failed to log in. Status code:",
+                        login_response.status_code)
+
     print("Logged in successfully.")
 
-# ---------------------------
-# Step 3: Download CableInfo.txt
-# ---------------------------
-
-# You can use similar headers as before
-
-
-def download_cable_info():
     file_response = session.get(CABLEINFO_URL, headers=HEADERS, verify=False)
-    if file_response.status_code == 200:
-        with cable_info_file(write=True) as file:
-            file.write(file_response.content)
-        print("CableInfo.txt downloaded successfully.")
-    else:
-        print("Failed to download CableInfo.txt. Status code:", file_response.status_code)
 
-def initialize_session():
-    global session
+    if file_response.status_code == 200:
+        return file_response.content
+    else:
+        raise Exception("Failed to retrieve CableInfo.txt. Status code:",
+                        file_response.status_code)
+
+
+def write_cable_info(file_bytes: bytes) -> bytes:
+    """
+    Write the CableInfo.txt file to disk.
+    """
+    with cable_info_file(write=True) as file:
+        file.write(file_bytes)
+        print("CableInfo.txt downloaded to disk successfully.")
+
+
+def initialize_session() -> requests.Session:
+    """
+    Initialize a requests session with the necessary settings.
+    """
     session = requests.Session()
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    return session
 
-def scrape():
-    initialize_session()
-    code = fetch_login_page()
-    login(code)
-    download_cable_info()
+
+def scrape_to_bytes() -> bytes:
+    """
+    Scrape the CableInfo.txt file and return its content as bytes.
+    """
+    session = initialize_session()
+    login_code = retrieve_login_code(session=session)
+    return retrieve_cable_info(login_code, session=session)
+
+
+def scrape_to_file():
+    """
+    Scrape the CableInfo.txt file and write it to disk.
+    """
+    session = initialize_session()
+    login_code = retrieve_login_code(session=session)
+    cable_info_bytes = retrieve_cable_info(login_code, session=session)
+    write_cable_info(cable_info_bytes)
 
 if __name__ == "__main__":
-    scrape()
+    scrape_to_file()
