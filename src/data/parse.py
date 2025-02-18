@@ -1,12 +1,13 @@
 # %%
 import re
-import sqlite3
 from dataclasses import dataclass
 from datetime import datetime
+from logger import Logger
 
 import pandas as pd
 from vars import cable_info_file, sqlconn
 
+logger = Logger.create_logger()
 
 @dataclass
 class CableData(dict):
@@ -116,8 +117,8 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
 
 
 def parse_from_file() -> CableData:
-    print("Parsing CableInfo.txt")
     with cable_info_file() as file:
+        logger.info(f"Parsing {file.name}")
         content = file.read()
 
     return parse_to_cable_data(content)
@@ -131,7 +132,7 @@ def parse_to_cable_data(content_bytes_or_str: bytes | str) -> CableData:
     content = content_bytes_or_str.decode() if isinstance(
         content_bytes_or_str, bytes) else content_bytes_or_str
 
-    print("Parsing CableInfo")
+    logger.info(f"Parsing {len(content)} cable info bytes",)
     # Parse Event Log
     # event_section = content.split('Event Log')[1]
     # event_pattern = r'((?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4}))\s+(\w+\s+\(\d+\))\s+(.+?)(?=(?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4})|$)'
@@ -174,11 +175,12 @@ def append_cable_data_to_db(cable_data: CableData):
     """
     Append the parsed cable data to the database.
     """
-    print("Appending cable data to database")
+    logger.info("Appending cable data to database")
     with sqlconn() as conn:
         tables = ["downstream_bonded_channels", "upstream_bonded_channels",
                   "downstream_ofdma_channels", "upstream_ofdma_channels"]
         for table in tables:
+            logger.info(f"Updating {table}")
             cable_data[table].to_sql(
                 table, conn, if_exists='append', index=False
             )

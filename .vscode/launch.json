@@ -20,7 +20,7 @@
 			],
 			"presentation": {
 				"hidden": true
-			}
+			},
 		},
 		{
 			"type": "node-terminal",
@@ -34,7 +34,8 @@
 				"name": "Launch Chrome",
 				"pattern": "http://localhost:([0-9]+)",
 				"killOnServerStop": true
-			}
+			},
+			"envFile": "${workspaceFolder}/.env"
 		},
 		{
 			"name": "dev serve",

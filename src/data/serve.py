@@ -1,4 +1,4 @@
-from parse import append_cable_data_to_db, parse_to_cable_data
+from refresh import refresh
 from quart import Quart, abort
 from scrape import scrape_to_bytes
 from vars import sqlconn
@@ -56,9 +56,8 @@ def listTables():
 @app.route('/api/scrape', methods=['POST'])
 async def scrapePost():
     # scrape data
-    file_bytes = scrape_to_bytes()
-    cable_data = parse_to_cable_data(file_bytes)
-    append_cable_data_to_db(cable_data)
+
+    refresh()
     return 'Scraped and parsed data'
 
 
