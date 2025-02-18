@@ -3,8 +3,10 @@ import re
 
 import requests
 import urllib3
-from flask import session
+from logger import Logger
 from vars import MODEM_HOST, MODEM_PW, cable_info_file
+
+logger = Logger.create_logger()
 
 LOGIN_PAGE_URL = f"https://{MODEM_HOST}/Login.htm"
 CABLEINFO_URL = f"https://{MODEM_HOST}/CableInfo.txt"
@@ -46,7 +48,7 @@ def retrieve_login_code(session: requests.Session) -> str:
         raise Exception("Could not extract the login code.")
 
     code = match.group(1)
-    print("Login code extracted:", code)
+    logger.info(f"Login code extracted: {code}")
     return code
 
 
@@ -62,7 +64,7 @@ def retrieve_cable_info(login_code: str, session: requests.Session) -> bytes:
         raise Exception("Failed to log in. Status code:",
                         login_response.status_code)
 
-    print("Logged in successfully.")
+    logger.info("Logged in successfully.")
 
     file_response = session.get(CABLEINFO_URL, headers=HEADERS, verify=False)
 
@@ -73,13 +75,14 @@ def retrieve_cable_info(login_code: str, session: requests.Session) -> bytes:
                         file_response.status_code)
 
 
-def write_cable_info(file_bytes: bytes) -> bytes:
+def write_cable_info_to_file(file_bytes: bytes) -> None:
     """
     Write the CableInfo.txt file to disk.
     """
     with cable_info_file(write=True) as file:
         file.write(file_bytes)
-        print("CableInfo.txt downloaded to disk successfully.")
+        logger.info(
+            f"{len(file_bytes)} bytes written to {file.name} successfully.")
 
 
 def initialize_session() -> requests.Session:
@@ -107,7 +110,7 @@ def scrape_to_file():
     session = initialize_session()
     login_code = retrieve_login_code(session=session)
     cable_info_bytes = retrieve_cable_info(login_code, session=session)
-    write_cable_info(cable_info_bytes)
+    write_cable_info_to_file(cable_info_bytes)
 
 if __name__ == "__main__":
     scrape_to_file()

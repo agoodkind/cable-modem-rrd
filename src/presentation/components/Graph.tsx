@@ -6,10 +6,14 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  type TooltipProps,
 } from "recharts";
+import type {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 import type { TableData, TableDataColumn } from "../dataTypes";
 import { shapeData } from "../utils/shapeData";
-import { ChartTooltip } from "./ChartToolTip";
 
 const getDefaultColumn = (data: TableData[]) => {
   if ("SNR" in data[0]) {
@@ -20,6 +24,65 @@ const getDefaultColumn = (data: TableData[]) => {
     return "Power";
   }
 };
+
+const ChartTooltip = ({
+  active,
+  payload,
+  label,
+}: TooltipProps<ValueType, NameType>) => {
+  if (!active || !payload || !payload.length) {
+    return null;
+  }
+  return (
+    <div className="grid max-h-80 gap-2 rounded bg-white p-2 dark:bg-gray-800">
+      <div className="text-lg font-bold">{label}</div>
+      <ul className="grid grid-cols-4 text-sm font-normal">
+        {payload
+          .sort((a, b) => {
+            return Number(b.value) - Number(a.value);
+          })
+          .map((entry, index) => (
+            <li key={`item-${index}`}>{`${entry.name}: ${entry.value}`}</li>
+          ))}
+      </ul>
+    </div>
+  );
+};
+
+const randomHexColors = [
+  "#AAD04E",
+  "#F2C2AB",
+  "#ADD949",
+  "#C3BE07",
+  "#CAE370",
+  "#2189BF",
+  "#9E88A7",
+  "#A26283",
+  "#651355",
+  "#4BC755",
+  "#6BC0DE",
+  "#8C621D",
+  "#02BB21",
+  "#D3C1A7",
+  "#2C6B3A",
+  "#F7EA47",
+  "#364A1C",
+  "#E82E7B",
+  "#FB37DA",
+  "#7186CD",
+  "#802C09",
+  "#D408DD",
+  "#1F168D",
+  "#B07AD5",
+  "#2F5938",
+  "#D06E65",
+  "#BC649C",
+  "#EFC3C6",
+  "#D96B67",
+  "#1CAD91",
+  "#97EF70",
+  "#545565",
+];
 
 function Graph({ data }: { data: TableData[] }) {
   const [selectedColumn, setSelectedColumn] = useState<TableDataColumn>(
@@ -59,6 +122,7 @@ function Graph({ data }: { data: TableData[] }) {
       <select
         className="w-fit rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
         value={selectedColumn ?? getDefaultColumn(data)}
+        defaultValue={getDefaultColumn(data)}
         onChange={(e) =>
           setSelectedColumn(e.currentTarget.value as TableDataColumn)
         }
@@ -78,15 +142,15 @@ function Graph({ data }: { data: TableData[] }) {
                 key={index}
                 name={`Channel ${index}`}
                 dataKey={`channel_${index}`}
-                stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+                stroke={randomHexColors[index]}
+                dot={false}
               />
             );
           })}
-
           <XAxis
             dataKey={(data) => {
               const date = new Date(Number(data.timestamp) * 1000);
-              return date.toLocaleTimeString();
+              return date.toString();
             }}
             hide={true}
           />

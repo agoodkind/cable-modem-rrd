@@ -5,6 +5,7 @@ CM_FILEPATH = os.environ.get('CM_FILEPATH', 'CableInfo.txt')
 CM_SQLITE_DB = os.environ.get('CM_SQLITE_DB', 'cable_modem.db')
 MODEM_PW = os.environ.get('MODEM_PW')
 MODEM_HOST= os.environ.get("MODEM_HOST", "192.168.100.1")
+LOG_FILE = os.environ.get('LOG_FILE', 'cable_modem.log')
 
 assert MODEM_PW, "MODEM_PW environment variable not set"
 
