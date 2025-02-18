@@ -88,12 +88,24 @@ export interface UpstreamOfdmaTable {
   data: UpstreamOfdmaChannel[];
 }
 
-// The union that lets you narrow based on tableName
 export type TableData =
+  | DownstreamBondedChannel
+  | UpstreamBondedChannel
+  | DownstreamOfdmaChannel
+  | UpstreamOfdmaChannel;
+
+export type TableDataColumn = keyof TableData;
+export type AllPossibleTableDataColumns = keyof DownstreamBondedChannel &
+  keyof UpstreamBondedChannel &
+  keyof DownstreamOfdmaChannel &
+  keyof UpstreamOfdmaChannel;
+
+// The union that lets you narrow based on tableName
+export type Table =
   | DownstreamBondedTable
   | UpstreamBondedTable
   | DownstreamOfdmaTable
   | UpstreamOfdmaTable;
 
 // The overall response is an array of each table type.
-export type CableModemData = TableData[];
+export type CableModemData = Table[];

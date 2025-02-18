@@ -22,7 +22,8 @@ type FlashableElementProps<E extends ElementType = typeof defaultElement> =
   };
 
 /**
- *
+ * Will flash yellow when the dependentVar changes
+ * if no dependentVar is provided, it will flash when the children change
  * @param children
  * @param dependentVar this variable is used to trigger yellow flash animation (re-render)
  * @returns a span element with yellow flash animation

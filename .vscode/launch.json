@@ -1,0 +1,53 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "chrome",
+			"request": "launch",
+			"name": "Launch Chrome",
+			"url": "http://localhost:5173",
+			"webRoot": "${workspaceFolder}/src/presentation",
+			"sourceMapPathOverrides": {
+				"webpack:///src/*": "${workspaceFolder/src/presentation/*"
+			},
+			"smartStep": true,
+			"sourceMaps": true,
+			"trace": true,
+			"userDataDir": "${workspaceFolder}/.chrm-dbg",
+			"resolveSourceMapLocations": [
+				"${workspaceFolder}/src/presentation/**",
+				"!**/node_modules/**"
+			],
+			"presentation": {
+				"hidden": true
+			}
+		},
+		{
+			"type": "node-terminal",
+			"request": "launch",
+			"name": "dev vite",
+			"skipFiles": ["<node_internals>/**"],
+			"command": "pnpm dev",
+			"cwd": "${workspaceFolder}/src/presentation",
+			"serverReadyAction": {
+				"action": "startDebugging",
+				"name": "Launch Chrome",
+				"pattern": "http://localhost:([0-9]+)",
+				"killOnServerStop": true
+			}
+		},
+		{
+			"name": "dev serve",
+			"type": "debugpy",
+			"request": "launch",
+			"program": "${workspaceFolder}/src/data/serve.py",
+			"envFile": "${workspaceFolder}/.env"
+		}
+	],
+	"compounds": [
+		{
+			"name": "dev all",
+			"configurations": ["dev vite", "dev flask"]
+		}
+	]
+}
