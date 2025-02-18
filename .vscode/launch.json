@@ -47,7 +47,7 @@
 	"compounds": [
 		{
 			"name": "dev all",
-			"configurations": ["dev vite", "dev flask"]
+			"configurations": ["dev vite", "dev serve"]
 		}
 	]
 }
