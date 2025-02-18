@@ -1,0 +1,5 @@
+{
+  "makefile.configureOnOpen": true,
+  "python.analysis.autoImportCompletions": true,
+  "python.envFile": "${workspaceFolder}/.env"
+}
