@@ -16,15 +16,26 @@ import type { TableData, TableDataColumn } from "../dataTypes";
 import { shapeData } from "../utils/shapeData";
 
 const getDefaultColumn = (data: TableData[]) => {
+  // if (!data.length) {
+  //   return "Power";
+  // }
+  // if ("SNR" in data[0]) {
+  //   return "SNR";
+  // } else if ("SNR/MER" in data[0]) {
+  //   return "SNR/MER";
+  // } else {
+  //   return "Power";
+  // }
+  // TODO fix column names
   if (!data.length) {
-    return "Power";
+    return "power";
   }
-  if ("SNR" in data[0]) {
-    return "SNR";
-  } else if ("SNR/MER" in data[0]) {
-    return "SNR/MER";
+  if ("snr" in data[0]) {
+    return "snr";
+  } else if ("snr/mer" in data[0]) {
+    return "snr/mer";
   } else {
-    return "Power";
+    return "power";
   }
 };
 
@@ -100,7 +111,9 @@ function Graph({ data }: { data: TableData[] }) {
 
       tableData.forEach((tableDataEntry) => {
         // if table has SNR
-        collector[`channel_${tableDataEntry.Channel}`] =
+        // TODO: fix column names
+        // @ts-ignore
+        collector[`channel_${tableDataEntry.channel}`] =
           tableDataEntry[selectedColumn];
       });
 

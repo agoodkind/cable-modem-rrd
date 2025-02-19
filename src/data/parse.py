@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
-from common import cable_info_file, sqlconn
+from common import CM_FILEPATH
+from db import write_df_to_db
 from logger import Logger
 
 logger = Logger.create_logger()
@@ -65,9 +66,6 @@ def parse_section_into_df(section: str) -> pd.DataFrame:
 
     return df
 
-# %%
-
-
 def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
     """
     Parse a section of the CableInfo.txt file into a DataFrame. Specific to the Downstream OFDMA Channels section.
@@ -116,7 +114,7 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
 
 
 def parse_from_file() -> CableData:
-    with cable_info_file() as file:
+    with open(CM_FILEPATH, "r") as file:
         logger.info(f"Parsing {file.name}")
         content = file.read()
 
@@ -175,15 +173,12 @@ def append_cable_data_to_db(cable_data: CableData):
     Append the parsed cable data to the database.
     """
     logger.info("Appending cable data to database")
-    with sqlconn() as conn:
-        tables = ["downstream_bonded_channels", "upstream_bonded_channels",
+
+    tables = ["downstream_bonded_channels", "upstream_bonded_channels",
                   "downstream_ofdma_channels", "upstream_ofdma_channels"]
-        for table in tables:
-            logger.info(f"Updating {table} with {len(cable_data[table])} rows")
-            cable_data[table].to_sql(
-                table, conn, if_exists='append', index=False
-            )
-        conn.commit()
+    for table in tables:
+        logger.info(f"Updating {table} with {len(cable_data[table])} rows")
+        write_df_to_db(cable_data[table], table)
 
 
 if __name__ == "__main__":
