@@ -1,6 +1,5 @@
-import aiosqlite
 import uvicorn
-from common import async_sqlconn
+from db import async_sqlconn, simple_fetchall_async
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from logger import Logger
@@ -11,29 +10,41 @@ app = FastAPI()
 
 
 async def get_tables():
-    async with async_sqlconn() as db:
-        # [
-        # ['table1'],
-        # ['table2'],
-        # ['table3'],
-        # ...
-        # ]
-        # convert to ['table1', 'table2', 'table3', ...]
-        async with db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'"
-        ) as cursor:
-            tables = await cursor.fetchall()
-            return [table[0] for table in tables]
+    # [
+    # ['table1'],
+    # ['table2'],
+    # ['table3'],
+    # ...
+    # ]
+    # convert to ['table1', 'table2', 'table3', ...]
+    tables = await simple_fetchall_async(
+        """
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema='public'
+            AND table_type='BASE TABLE';
+        """
+    )
+
+    return [table[0] for table in tables]
 
 
 async def transform_row(row, columns):
-    return {columns[i][1]: row[i] for i in range(len(columns))}
+    return {columns[i][0]: row[i] for i in range(len(columns))}
 
 
 async def get_columns(table_name: str):
-    async with async_sqlconn() as conn:
-        async with conn.execute(f"PRAGMA table_info({table_name})") as cursor:
-            return await cursor.fetchall()
+    return await simple_fetchall_async(
+        f"""
+            SELECT
+                column_name
+            FROM
+                information_schema.columns
+            WHERE
+                table_schema = 'public' AND
+                table_name = '{table_name}';
+        """
+    )
 
 
 async def get_table(
@@ -46,44 +57,44 @@ async def get_table(
     columns = await get_columns(table_name)
 
     async with async_sqlconn() as db:
+        async with db.cursor() as cursor:
         # get the first ~32 rows and find the min & max columnID
-        if base_limit is not None:
-            async with db.execute(f"SELECT MAX(Channel) FROM {table_name}") as cursor:
+            if base_limit is not None:
+                await cursor.execute(f"SELECT MAX(Channel) FROM {table_name}")
                 max_id = await cursor.fetchone()
                 calculated_limit = base_limit * max_id[0]
 
-        select = f"SELECT * FROM {table_name}"
-        order_by = " ORDER BY timestamp DESC"
+            select = f"SELECT * FROM {table_name}"
+            order_by = " ORDER BY timestamp DESC"
 
-        wheres = []
-        if min_ts is not None:
-            wheres.append(f"timestamp > {min_ts}")
-        if min_ts is not None:
-            wheres.append(f"timestamp < {max_ts}")
+            wheres = []
+            if min_ts is not None:
+                wheres.append(f"timestamp > {min_ts}")
+            if min_ts is not None:
+                wheres.append(f"timestamp < {max_ts}")
 
-        sql = select
+            sql = select
 
-        if len(wheres) > 0:
-            sql += " WHERE " + " AND ".join(wheres)
+            if len(wheres) > 0:
+                sql += " WHERE " + " AND ".join(wheres)
 
-        sql += order_by
+            sql += order_by
 
-        if base_limit is not None:
-            sql += f" LIMIT {calculated_limit}"
+            if base_limit is not None:
+                sql += f" LIMIT {calculated_limit}"
 
-        if offset is not None:
-            sql += f" OFFSET {offset}"
+            if offset is not None:
+                sql += f" OFFSET {offset}"
 
-        async with db.execute(sql) as cursor:
+
+            await cursor.execute(sql)
             data = await cursor.fetchall()
             return [await transform_row(row, columns) for row in data]
 
 
 @app.post("/api/dangerous/execute_sql")
-async def execute_sql(sql: str):
-    async with async_sqlconn() as db:
-        async with db.execute(sql) as cursor:
-            return await cursor.fetchall()
+async def execute_sql(sql: str) -> list:
+    return await simple_fetchall_async(sql)
 
 
 @app.get("/api/tables/{table_name}/columns")

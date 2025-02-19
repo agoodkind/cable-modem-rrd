@@ -1,9 +1,12 @@
 // A union of table names for use in the discriminant
-export type TableName =
-  | "downstream_bonded_channels"
-  | "upstream_bonded_channels"
-  | "downstream_ofdma_channels"
-  | "upstream_ofdma_channels";
+export const tableNames = [
+  "downstream_bonded_channels",
+  "upstream_bonded_channels",
+  "downstream_ofdma_channels",
+  "upstream_ofdma_channels",
+] as const;
+
+export type TableName = typeof tableNames[number];
 
 // Common type aliases
 export type LockedStatus = "Locked" | "Not Locked";

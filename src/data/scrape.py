@@ -3,7 +3,7 @@ import re
 
 import requests
 import urllib3
-from common import MODEM_HOST, MODEM_PW, cable_info_file
+from common import CM_FILEPATH, MODEM_HOST, MODEM_PW
 from logger import Logger
 
 logger = Logger.create_logger()
@@ -80,7 +80,7 @@ def write_cable_info_to_file(file_bytes: bytes) -> None:
     """
     Write the CableInfo.txt file to disk.
     """
-    with cable_info_file(write=True) as file:
+    with open(CM_FILEPATH, "wb") as file:
         file.write(file_bytes)
         logger.info(
             f"{len(file_bytes)} bytes written to {file.name} successfully.")

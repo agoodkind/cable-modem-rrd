@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import aiopg
 import pandas as pd
 from common import PG_DB, PG_HOST, PG_PASSWORD, PG_PORT, PG_USER
@@ -10,9 +12,10 @@ logger = Logger.create_logger()
 
 # todo convert to sqalchemy
 dsn = "dbname=aiopg user=aiopg password=passwd host=127.0.0.1"
+dsn = f"dbname={PG_DB} user={PG_USER} password={PG_PASSWORD} host={PG_HOST} port={PG_PORT}"
 
 
-async def test_select():
+async def create_pool():
     async with aiopg.create_pool(dsn) as pool:
         async with pool.acquire() as conn:
             async with conn.cursor() as cur:
@@ -21,6 +24,24 @@ async def test_select():
                 async for row in cur:
                     ret.append(row)
                 assert ret == [(1,)]
+                
+@asynccontextmanager
+async def async_sqlconn():
+    async with aiopg.create_pool(dsn) as pool:
+        async with pool.acquire() as conn:
+            try:
+                yield conn
+            finally:
+                await conn.close()
+                
+async def simple_fetchall_async(query: str):
+    """
+    helper for simple fetch all queries
+    """
+    async with async_sqlconn() as conn:
+        async with conn.cursor() as cursor:
+            await cursor.execute(query)
+            return await cursor.fetchall()
 
 # todo convert to async
 def write_df_to_db(df: pd.DataFrame, table_name: str) -> None:

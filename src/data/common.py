@@ -1,7 +1,4 @@
 import os
-import sqlite3
-
-import aiosqlite
 
 CM_FILEPATH = os.environ.get('CM_FILEPATH', 'CableInfo.txt')
 

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
-from common import cable_info_file, sqlconn
+from common import CM_FILEPATH
 from db import write_df_to_db
 from logger import Logger
 
@@ -114,7 +114,7 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
 
 
 def parse_from_file() -> CableData:
-    with cable_info_file() as file:
+    with open(CM_FILEPATH, "r") as file:
         logger.info(f"Parsing {file.name}")
         content = file.read()
 

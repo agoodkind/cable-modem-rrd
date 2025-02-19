@@ -5,7 +5,7 @@ import Graph from "./Graph";
 const listTables = async (): Promise<TableName[]> => {
   const response = await fetch("/api/tables");
   const data: string[] = await response.json();
-  return data as TableName[];
+  return data.reverse() as TableName[];
 };
 
 const loadTables = async (
