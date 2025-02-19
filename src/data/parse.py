@@ -1,11 +1,10 @@
-# %%
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from logger import Logger
 
 import pandas as pd
-from vars import cable_info_file, sqlconn
+from common import cable_info_file, sqlconn
 
 logger = Logger.create_logger()
 

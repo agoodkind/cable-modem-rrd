@@ -1,12 +1,17 @@
+import aiosqlite
+import uvicorn
+from common import async_sqlconn
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
+from logger import Logger
 from refresh import refresh
-from quart import Quart, abort
-from scrape import scrape_to_bytes
-from vars import sqlconn
 
-app = Quart(__name__)
+logger = Logger.create_logger()
+app = FastAPI()
 
-def get_tables():
-    with sqlconn() as conn:
+
+async def get_tables():
+    async with async_sqlconn() as db:
         # [
         # ['table1'],
         # ['table2'],
@@ -14,46 +19,62 @@ def get_tables():
         # ...
         # ]
         # convert to ['table1', 'table2', 'table3', ...]
-        return [table[0] for table in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
+        async with db.execute("SELECT name FROM sqlite_master WHERE type='table'") as cursor:
+            tables = await cursor.fetchall()
+            return [table[0] for table in tables]
 
-def transform_row(row, columns):
+
+async def transform_row(row, columns):
     return {columns[i][1]: row[i] for i in range(len(columns))}
 
-def get_columns(table_name: str):
-    with sqlconn() as conn:
-        return conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+
+async def get_columns(table_name: str):
+    async with async_sqlconn() as conn:
+        async with conn.execute(f"PRAGMA table_info({table_name})") as cursor:
+            return await cursor.fetchall()
 
 
-def get_table(table_name: str):
-    columns = get_columns(table_name)
-    with sqlconn() as conn:
-        data = conn.execute(f"SELECT * FROM {table_name}").fetchall()
+async def get_table(table_name: str, limit: int = 100):
+    columns = await get_columns(table_name)
+    
+    async with async_sqlconn() as db:
+        # get the first ~32 rows and find the min & max columnID
+        async with db.execute(f"SELECT MAX(ChannelID) FROM {table_name}") as cursor:
+            max_id = await cursor.fetchone()
+            calculated_limit = limit * max_id[0]
+        async with db.execute(f"SELECT * FROM {table_name} LIMIT {calculated_limit}") as cursor:
+            data = await cursor.fetchall()
+            return [await transform_row(row, columns) for row in data]
 
-        return [transform_row(row, columns) for row in data]
 
+@app.post("/api/dangerous/execute_sql")
+async def execute_sql(sql: str):
+    async with async_sqlconn() as db:
+        async with db.execute(sql) as cursor:
+            return await cursor.fetchall()
 
-@app.route('/api/tables/<table_name>/columns')
+@app.get('/api/tables/{table_name}/columns')
 async def columns(table_name: str):
-    if table_name not in get_tables():
-        abort(404, f'Table {table_name} not found')
+    if table_name not in await get_tables():
+        raise HTTPException(404, f'Table {table_name} not found')
     else:
-        return get_columns(table_name)
+        return await get_columns(table_name)
 
 
-@app.route('/api/tables/<table_name>')
-async def table(table_name: str):
-    if table_name not in get_tables():
-        abort(404, f'Table {table_name} not found')
+@app.get('/api/tables/{table_name}')
+async def table(table_name: str, limit: int = 100):
+    if table_name not in await get_tables():
+        raise HTTPException(404, f'Table {table_name} not found')
     else:
-        return get_table(table_name)
+        return await get_table(table_name, limit)
 
 
-@app.route('/api/tables')
-def listTables():
-    return get_tables()
+@app.get('/api/tables', response_model=list)
+async def listTables():
+    return await get_tables()
 
 
-@app.route('/api/scrape', methods=['POST'])
+@app.post('/api/scrape')
 async def scrapePost():
     # scrape data
 
@@ -61,11 +82,12 @@ async def scrapePost():
     return 'Scraped and parsed data'
 
 
-@app.route('/')
+@app.get('/', response_class=HTMLResponse)
 async def index():
     # return list of <a href="table_name">table_name</a>
-    links = '\n'.join([f'<div><a href="{table_name}">{table_name}</a></div>' for table_name in get_tables()]) + '<div><a href="/api/listTables">List Tables</a><div>'
+    links = '\n'.join([f'<div><a href="{table_name}">{table_name}</a></div>' for table_name in await get_tables(
+    )]) + '<div><a href="/api/tables">List Tables</a><div>'
     return f"<html><body style=\"background-color: black; color: white\"><h1>Tables</h1>{links}</body></html>"
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    uvicorn.run("serve:app", host="0.0.0.0", port=8000, reload=True)

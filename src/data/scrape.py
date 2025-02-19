@@ -4,7 +4,7 @@ import re
 import requests
 import urllib3
 from logger import Logger
-from vars import MODEM_HOST, MODEM_PW, cable_info_file
+from common import MODEM_HOST, MODEM_PW, cable_info_file
 
 logger = Logger.create_logger()
 
