@@ -29,10 +29,9 @@ if __name__ == "__main__":
         with timer():
             refresh()
             
-        logger.info("Sleeping for %d seconds", 15)
-        
         cycle_count += 1
         
+        logger.info("Sleeping for %d seconds", 15)
         sleep(15)
         logger.info("Woke up!")
         
