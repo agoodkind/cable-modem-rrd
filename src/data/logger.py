@@ -3,7 +3,7 @@ import logging
 import os
 from functools import wraps
 
-from vars import LOG_FILE
+from common import LOG_FILE
 
 
 def grab_caller_name(func):
