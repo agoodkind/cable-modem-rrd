@@ -17,7 +17,7 @@ def grab_caller_name(func):
 class LoggerInitializer:
     def __init__(self):
         logging.basicConfig(
-            format='%(asctime)s [%(name)s] [%(levelname)s]: %(message)s',
+            format='%(asctime)s [%(process)d] [%(name)s] [%(levelname)s]: %(message)s',
             filename=LOG_FILE,
             level=logging.INFO,
             datefmt='%Y-%m-%d %H:%M:%S')

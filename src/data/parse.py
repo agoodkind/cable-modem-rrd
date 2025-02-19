@@ -1,10 +1,10 @@
 import re
 from dataclasses import dataclass
 from datetime import datetime
-from logger import Logger
 
 import pandas as pd
 from common import cable_info_file, sqlconn
+from logger import Logger
 
 logger = Logger.create_logger()
 
@@ -131,7 +131,7 @@ def parse_to_cable_data(content_bytes_or_str: bytes | str) -> CableData:
     content = content_bytes_or_str.decode() if isinstance(
         content_bytes_or_str, bytes) else content_bytes_or_str
 
-    logger.info(f"Parsing {len(content)} cable info bytes",)
+    logger.info(f"Parsing {len(content)} bytes of cable info",)
     # Parse Event Log
     # event_section = content.split('Event Log')[1]
     # event_pattern = r'((?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4}))\s+(\w+\s+\(\d+\))\s+(.+?)(?=(?:Time Not Established|[\w\s]+\d{2}:\d{2}:\d{2}\s+\d{4})|$)'
@@ -179,7 +179,7 @@ def append_cable_data_to_db(cable_data: CableData):
         tables = ["downstream_bonded_channels", "upstream_bonded_channels",
                   "downstream_ofdma_channels", "upstream_ofdma_channels"]
         for table in tables:
-            logger.info(f"Updating {table}")
+            logger.info(f"Updating {table} with {len(cable_data[table])} rows")
             cable_data[table].to_sql(
                 table, conn, if_exists='append', index=False
             )

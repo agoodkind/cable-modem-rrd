@@ -1,7 +1,9 @@
 from time import sleep
+
 from logger import Logger
 from parse import append_cable_data_to_db, parse_to_cable_data
 from scrape import scrape_to_bytes
+from timer import timer
 
 logger = Logger.create_logger()
 
@@ -17,10 +19,21 @@ def refresh():
 
 
 if __name__ == "__main__":
+    logger.info("Starting refresh cycle")
     
-    logger.info("Refreshing data")
-    for i in range(3):
+    cycle_count = 0
+    
+    while cycle_count < 4:
+        logger.info("Refresh %d", cycle_count + 1)
+        
+        with timer():
+            refresh()
+            
         logger.info("Sleeping for %d seconds", 15)
+        
+        cycle_count += 1
+        
         sleep(15)
-        refresh()
+        logger.info("Woke up!")
+        
     logger.info("Done!")
