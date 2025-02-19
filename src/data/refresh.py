@@ -1,4 +1,3 @@
-from itertools import cycle
 from time import sleep
 
 from logger import Logger
