@@ -16,6 +16,9 @@ import type { TableData, TableDataColumn } from "../dataTypes";
 import { shapeData } from "../utils/shapeData";
 
 const getDefaultColumn = (data: TableData[]) => {
+  if (!data.length) {
+    return "Power";
+  }
   if ("SNR" in data[0]) {
     return "SNR";
   } else if ("SNR/MER" in data[0]) {
@@ -88,6 +91,7 @@ function Graph({ data }: { data: TableData[] }) {
   const [selectedColumn, setSelectedColumn] = useState<TableDataColumn>(
     getDefaultColumn(data) as TableDataColumn,
   );
+
   const shapedData = shapeData(data);
 
   const channelMapping = Object.entries(shapedData).map(
@@ -96,7 +100,7 @@ function Graph({ data }: { data: TableData[] }) {
 
       tableData.forEach((tableDataEntry) => {
         // if table has SNR
-        collector[`channel_${tableDataEntry.ChannelID}`] =
+        collector[`channel_${tableDataEntry.Channel}`] =
           tableDataEntry[selectedColumn];
       });
 
@@ -114,6 +118,10 @@ function Graph({ data }: { data: TableData[] }) {
     ...(data.map((d) => d[selectedColumn]) as number[]),
   );
 
+  if (!data.length) {
+    return <div>No data available</div>;
+  }
+
   const columnNames = Object.keys(data[0]) as TableDataColumn[];
   const channelGroupLength = Object.entries(shapedData)[0][1].length;
 
@@ -128,11 +136,12 @@ function Graph({ data }: { data: TableData[] }) {
         }
       >
         {columnNames.map((key) => (
-          <option value={key} key={key} selected={key === selectedColumn}>
+          <option value={key} key={key}>
             {key}
           </option>
         ))}
       </select>
+      
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={channelMapping} className="text-black dark:text-white">
           {Array.from(Array(channelGroupLength)).map((_, index) => {
