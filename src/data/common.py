@@ -9,6 +9,12 @@ MODEM_PW = os.environ.get('MODEM_PW')
 MODEM_HOST= os.environ.get("MODEM_HOST", "192.168.100.1")
 LOG_FILE = os.environ.get('LOG_FILE', 'cable_modem.log')
 
+PG_PASSWORD = os.environ.get('PG_PASSWORD')
+PG_USER = os.environ.get('PG_USER')
+PG_HOST = os.environ.get('PG_HOST', 'localhost')
+PG_PORT = os.environ.get('PG_PORT', '5432')
+PG_DB = os.environ.get('PG_DB', 'cm_data')
+
 assert MODEM_PW, "MODEM_PW environment variable not set"
 
 def sqlconn():

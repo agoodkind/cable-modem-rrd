@@ -3,8 +3,8 @@ import re
 
 import requests
 import urllib3
-from logger import Logger
 from common import MODEM_HOST, MODEM_PW, cable_info_file
+from logger import Logger
 
 logger = Logger.create_logger()
 
@@ -69,6 +69,7 @@ def retrieve_cable_info(login_code: str, session: requests.Session) -> bytes:
     file_response = session.get(CABLEINFO_URL, headers=HEADERS, verify=False)
 
     if file_response.status_code == 200:
+        logger.debug(f"Raw CableInfo.txt content: {file_response.content}")
         return file_response.content
     else:
         raise Exception("Failed to retrieve CableInfo.txt. Status code:",
