@@ -3,13 +3,15 @@ import logging
 import os
 import sys
 from functools import wraps
+from typing import Callable
 
+from annotated_types import T
 from common import LOG_FILE
 
 
-def grab_caller_name(func) -> logging.Logger:
+def grab_caller_name(func: Callable[..., T]) -> Callable[..., T]:
     @wraps(func)
-    def wrapper(self, *args, **kwargs) -> logging.Logger:
+    def wrapper(self, *args, **kwargs) -> T:
         caller_name = os.path.basename(inspect.stack()[1].filename)
         return func(self, caller_name, *args, **kwargs)
     return wrapper
