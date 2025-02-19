@@ -114,8 +114,15 @@ function Graph({ data }: { data: TableData[] }) {
   const maxSelectedColumnValue = Math.max(
     ...(data.map((d) => d[selectedColumn]) as number[]),
   );
+
+  // const minSelectedColumnValue = Math.min(
+  //   ...(data.map((d) => d[selectedColumn]) as number[]),
+  // );
+  // get min non-zero value
   const minSelectedColumnValue = Math.min(
-    ...(data.map((d) => d[selectedColumn]) as number[]),
+    ...(data
+      .map((d) => d[selectedColumn])
+      .filter((v) => Number(v) > 0) as number[]),
   );
 
   if (!data.length) {
