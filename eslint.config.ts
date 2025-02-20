@@ -27,7 +27,7 @@ export default tseslint.config(
       ],
       "no-unused-vars": "warn",
       "no-console": "warn",
-      "no-explicit-any": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
       "react-hooks/exhaustive-deps": "off",
       "prettier/prettier": "warn", // reports Prettier formatting issues as warnings
     },

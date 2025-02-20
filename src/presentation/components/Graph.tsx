@@ -107,12 +107,13 @@ function Graph({ data }: { data: TableData[] }) {
 
   const channelMapping = Object.entries(shapedData).map(
     ([timestamp, tableData]) => {
-      const collector: any = {};
+      const collector: {
+        [key: string]: number | string;
+      } = {};
 
       tableData.forEach((tableDataEntry) => {
         // if table has SNR
         // TODO: fix column names
-        // @ts-ignore
         collector[`channel_${tableDataEntry.channel}`] =
           tableDataEntry[selectedColumn];
       });
@@ -161,7 +162,7 @@ function Graph({ data }: { data: TableData[] }) {
           </option>
         ))}
       </select>
-      
+
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={channelMapping} className="text-black dark:text-white">
           {Array.from(Array(channelGroupLength)).map((_, index) => {

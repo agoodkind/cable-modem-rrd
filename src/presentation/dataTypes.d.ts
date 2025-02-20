@@ -13,60 +13,48 @@ export type LockedStatus = "Locked" | "Not Locked";
 export type Modulation = "QAM256" | "Unknown";
 export type ChannelType = "ATDMA" | "Unknown";
 
+export interface CommonChannelFields {
+  channel: number;
+  channelId: number;
+  frequency: number;
+  lockedStatus: LockedStatus;
+  power: number;
+  timestamp: number;
+  id: string;
+}
+
 // --- Channel Interfaces ---
 
 // Downstream bonded channel
-export interface DownstreamBondedChannel {
-  Channel: number;
-  ChannelID: number;
-  Correctables: number;
-  Frequency: number;
-  LockedStatus: LockedStatus;
-  Modulation: Modulation;
-  Power: number;
-  SNR: number;
-  Uncorrectables: number;
-  timestamp: number;
+export interface DownstreamBondedChannel extends CommonChannelFields {
+  correctables: number;
+  modulation: Modulation;
+  snr: number;
+  uncorrectables: number;
 }
 
 // Upstream bonded channel
-export interface UpstreamBondedChannel {
-  Channel: number;
-  ChannelID: number;
-  ChannelType: ChannelType;
-  Frequency: number;
-  LockedStatus: LockedStatus;
-  Power: number;
-  SymbolRate: number;
-  timestamp: number;
+export interface UpstreamBondedChannel extends CommonChannelFields {
+  channelType: ChannelType;
+  frequency: number;
+  symbolRate: number;
 }
 
 // Downstream OFDMA channel
-export interface DownstreamOfdmaChannel {
-  ActiveSubcarrier1: number;
-  ActiveSubcarrier2: number;
-  Channel: number;
-  ChannelID: number;
-  Correctable: number;
-  Frequency: number;
-  LockedStatus: LockedStatus;
-  Power: number;
-  ProfileID: string;
-  "SNR/MER": number;
-  Uncorrectable: number;
-  Unerror: number;
-  timestamp: number;
+export interface DownstreamOfdmaChannel extends CommonChannelFields {
+  activeSubcarrier1: number;
+  activeSubcarrier2: number;
+  correctable: number;
+  profileId: string;
+  snr: number;
+  incorrectable: number;
+  inerror: number;
 }
 
 // Upstream OFDMA channel
-export interface UpstreamOfdmaChannel {
-  Channel: number;
-  ChannelID: number;
-  Frequency: number;
-  LockedStatus: LockedStatus;
-  Power: number;
-  ProfileID: string;
-  timestamp: number;
+export interface UpstreamOfdmaChannel extends CommonChannelFields {
+  frequency: number;
+  profileId: string;
 }
 
 // --- Discriminated Union Wrappers ---
