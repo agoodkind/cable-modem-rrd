@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CableModemData, Table, TableName } from "../dataTypes";
+import { deepCamelCaseKeys } from "../utils/camelCaseKeys";
 import Graph from "./Graph";
 
 const listTables = async (): Promise<TableName[]> => {
@@ -20,8 +21,12 @@ const loadTables = async (
     });
     const response = await fetch(`/api/tables/${table}?${qParams}`);
     const data = await response.json();
+
     // Create the discriminated object:
-    return { tableName: table as TableName, data } as Table;
+    return {
+      tableName: table as TableName,
+      data: deepCamelCaseKeys(data),
+    } as Table;
   });
 
   return await Promise.all(tableDataMapPromises);
@@ -63,9 +68,12 @@ function Presentation() {
 
   useEffect(() => {
     if (refreshEnabled) {
-      const intervalId = setInterval(() => {
-        reloadData();
-      }, 1000 * 60 * 5); // 5 minutes
+      const intervalId = setInterval(
+        () => {
+          reloadData();
+        },
+        1000 * 60 * 5,
+      ); // 5 minutes
       return () => clearInterval(intervalId);
     }
   }, [refreshEnabled, reloadData]);
@@ -138,8 +146,11 @@ function Presentation() {
             Last 2 Days
           </button>
         </div>
-        <div className="flex gap-2 items-center">
-          <input type="checkbox" onChange={(e) => setRefreshEnabled(e.target.checked)} />
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            onChange={(e) => setRefreshEnabled(e.target.checked)}
+          />
           <label>Auto Refresh</label>
         </div>
         {tableData?.map((table) => {

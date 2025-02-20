@@ -3,7 +3,7 @@ import re
 
 import requests
 import urllib3
-from common import CM_FILEPATH, MODEM_HOST, MODEM_PW
+from constants import CM_FILEPATH, MODEM_HOST, MODEM_PW
 from logger import Logger
 
 logger = Logger.create_logger()
@@ -76,11 +76,11 @@ def retrieve_cable_info(login_code: str, session: requests.Session) -> bytes:
                         file_response.status_code)
 
 
-def write_cable_info_to_file(file_bytes: bytes) -> None:
+def write_cable_info_to_file(file_bytes: bytes, file_path: str = CM_FILEPATH) -> None:
     """
     Write the CableInfo.txt file to disk.
     """
-    with open(CM_FILEPATH, "wb") as file:
+    with open(file_path, "wb") as file:
         file.write(file_bytes)
         logger.info(
             f"{len(file_bytes)} bytes written to {file.name} successfully.")
@@ -104,14 +104,11 @@ def scrape_to_bytes() -> bytes:
     return retrieve_cable_info(login_code, session=session)
 
 
-def scrape_to_file():
+def scrape_to_file(file_path: str) -> None:
     """
     Scrape the CableInfo.txt file and write it to disk.
     """
     session = initialize_session()
     login_code = retrieve_login_code(session=session)
     cable_info_bytes = retrieve_cable_info(login_code, session=session)
-    write_cable_info_to_file(cable_info_bytes)
-
-if __name__ == "__main__":
-    scrape_to_file()
+    write_cable_info_to_file(cable_info_bytes, file_path)
