@@ -3,9 +3,9 @@ from dataclasses import dataclass
 from datetime import datetime
 
 import pandas as pd
-from constants import CM_FILEPATH
+from utils.constants import CM_FILEPATH
 from db import get_engine_sync, write_df_to_db
-from logger import Logger
+from utils.logger import Logger
 
 logger = Logger.create_logger()
 
@@ -108,8 +108,6 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
     df["Unerror"] = df["Unerror"].astype(int)
     df["Correctable"] = df["Correctable"].astype(int)
     df["Uncorrectable"] = df["Uncorrectable"].astype(int)
-
-    
 
     return df
 

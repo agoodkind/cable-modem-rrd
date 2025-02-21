@@ -1,12 +1,25 @@
-# todo write me
-# remove all __name__ == "__main__" blocks
-# and instead use this file with cli entrypoints
-import os
-
+from pdb import run
 import click
 from parse import parse_from_file
 from refresh import refresh_with_cycle
 from scrape import scrape_to_bytes, scrape_to_file
+from api import run as run_api
+
+class Config(object):
+    def __init__(self, config_file: str):
+        # with open(config_file, "r") as file:
+        #     lines = file.readlines()
+        #     for line in lines:
+        #         key, value = line.strip().split("=")
+        #         setattr(self, key, value)
+        self.cm_password = None
+        self.cm_host = None
+        self.pg_password = None
+        self.pg_user = None
+        self.pg_host = None
+        self.pg_port = None
+        self.pg_db = None
+        
 
 
 @click.group()
@@ -17,8 +30,11 @@ from scrape import scrape_to_bytes, scrape_to_file
 # @click.option("--pg_host", help="Host for the PostgreSQL database.", type=str, required=False)
 # @click.option("--pg_port", help="Port for the PostgreSQL database.", type=str, required=False)
 # @click.option("--pg_db", help="Database for the PostgreSQL database.", type=str, required=False)
-def cli(): 
-    pass
+@click.option("--config", help="Path to the config file.", type=str, default="config.yml", envvar="CONFIG_PATH")
+@click.pass_context
+def cli(ctx, config: str):
+    ctx.obj = Config(config)
+
 #     cm_password: str | None,
 #     cm_host: str | None,
 #     pg_password: str | None,
@@ -74,9 +90,10 @@ def scrape(file: str | None):
         bytes = scrape_to_bytes()
         print(bytes)
 
-cli.add_command(refresh)
-cli.add_command(parse)
-cli.add_command(scrape)
+
+@cli.command()
+def api():
+    run_api()
 
 if __name__ == "__main__":
     cli()

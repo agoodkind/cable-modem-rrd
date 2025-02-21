@@ -135,3 +135,4 @@ dmypy.json
 *.db
 CableInfo.txt
 .env
+config.yml

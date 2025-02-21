@@ -2,17 +2,14 @@ from contextlib import asynccontextmanager
 
 import aiopg
 import pandas as pd
-from constants import PG_DB, PG_HOST, PG_PASSWORD, PG_PORT, PG_USER
-from logger import Logger
+from utils.constants import PG_DB, PG_HOST, PG_PASSWORD, PG_PORT, PG_USER
+from utils.logger import Logger
 from sqlalchemy import create_engine
 
 logger = Logger.create_logger()
 
-
 # todo convert to sqalchemy
-dsn = "dbname=aiopg user=aiopg password=passwd host=127.0.0.1"
 dsn = f"dbname={PG_DB} user={PG_USER} password={PG_PASSWORD} host={PG_HOST} port={PG_PORT}"
-
 
 async def create_pool():
     async with aiopg.create_pool(dsn) as pool:
