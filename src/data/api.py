@@ -146,4 +146,4 @@ async def index():
     return f'<html><body style="background-color: black; color: white"><h1>Tables</h1>{links}</body></html>'
 
 def run():
-    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, reload_includes=["src/data/*.py"])

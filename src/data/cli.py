@@ -58,7 +58,6 @@ def cli(ctx, config: str):
 #     if pg_db:
 #         os.environ["PG_DB"] = pg_db
 
-
 @cli.command()
 @click.option("--cycles", help="Refresh cycle count.", type=int, required=False)
 @click.option("--sleep", help="Time to sleep between cycles.", type=int, required=False)
