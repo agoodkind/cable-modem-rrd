@@ -17,6 +17,7 @@ func NewRequestHandler(dbPool *pgxpool.Pool) *RequestHandler {
 	return &RequestHandler{datastore: models.NewDatastore(dbPool)}
 }
 
+// add query strings for min, max TS
 func (r *RequestHandler) DownstreamRowsTODO(ctx *gin.Context) {
 	channels, err := models.GetDownstreamBondedChannels(r.datastore.Pool())
 	if err != nil {
@@ -26,9 +27,12 @@ func (r *RequestHandler) DownstreamRowsTODO(ctx *gin.Context) {
 }
 
 func (r *RequestHandler) Home(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "index.html", gin.H{
-		"title": "Stop being poor",
-	})
+	ctx.IndentedJSON(
+		http.StatusOK,
+		gin.H{
+			"hello": "world",
+		},
+	)
 }
 
 func Init() {
