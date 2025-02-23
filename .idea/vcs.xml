@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CommitMessageInspectionProfile">
+    <profile version="1.0">
+      <inspection_tool class="CommitMessageSpellChecking" enabled="true" level="GRAMMAR_ERROR" enabled_by_default="true" />
+      <inspection_tool class="SubjectBodySeparation" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" />
+      <inspection_tool class="SubjectLimit" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" />
+    </profile>
+  </component>
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+  </component>
+</project>

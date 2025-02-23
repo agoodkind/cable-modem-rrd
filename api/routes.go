@@ -49,8 +49,9 @@ func Init() {
 	defer dbPool.Close()
 
 	handler := NewRequestHandler(dbPool)
+	router.GET("/", handler.Home)
 	router.GET("/downstream", handler.DownstreamRowsTODO)
+
 	// TODO make configurable
 	router.Run(":6969")
-
 }
