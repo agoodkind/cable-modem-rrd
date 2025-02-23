@@ -3,8 +3,8 @@ import re
 
 import requests
 import urllib3
-from constants import CM_FILEPATH, MODEM_HOST, MODEM_PW
-from logger import Logger
+from utils.constants import CM_FILEPATH, MODEM_HOST, MODEM_PW
+from utils.logger import Logger
 
 logger = Logger.create_logger()
 

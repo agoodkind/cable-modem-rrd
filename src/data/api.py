@@ -2,8 +2,8 @@ import uvicorn
 from db import async_sqlconn, simple_fetchall_async
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
-from logger import Logger
 from refresh import refresh
+from utils.logger import Logger
 
 logger = Logger.create_logger()
 app = FastAPI()
@@ -108,10 +108,10 @@ async def columns(table_name: str):
 @app.get("/api/tables/{table_name}")
 async def table(
     table_name: str,
-    limit: int = None,
-    min_ts: int = None,
-    max_ts: int = None,
-    offset: int = None,
+    limit: int,
+    min_ts: int,
+    max_ts: int,
+    offset: int
 ):
     if table_name not in await get_tables():
         raise HTTPException(404, f"Table {table_name} not found")
@@ -120,12 +120,12 @@ async def table(
 
 
 @app.get("/api/tables", response_model=list)
-async def listTables():
+async def list_tables():
     return await get_tables()
 
 
 @app.post("/api/scrape")
-async def scrapePost():
+async def scrape_post():
     # scrape data
 
     refresh()
@@ -145,6 +145,5 @@ async def index():
     )
     return f'<html><body style="background-color: black; color: white"><h1>Tables</h1>{links}</body></html>'
 
-
-if __name__ == "__main__":
-    uvicorn.run("serve:app", host="0.0.0.0", port=8000, reload=True)
+def run():
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, reload_dirs=["src/data"],  reload_excludes=["*.pyc", "__pycache__"])

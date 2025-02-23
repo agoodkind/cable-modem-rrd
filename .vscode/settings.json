@@ -1,6 +1,7 @@
 {
-  "makefile.configureOnOpen": true,
-  "python.analysis.autoImportCompletions": true,
-  "python.analysis.extraPaths": ["${workspaceFolder}/src/data"],
-  "python.envFile": "${workspaceFolder}/.env"
+    "makefile.configureOnOpen": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.extraPaths": ["${workspaceFolder}/src/data"],
+    "python.envFile": "${workspaceFolder}/.env",
+    "gopls": { "ui.semanticTokens": true }
 }

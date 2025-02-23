@@ -1,6 +1,7 @@
 {
 	"version": "0.2.0",
 	"configurations": [
+
 		{
 			"type": "chrome",
 			"request": "launch",
@@ -38,17 +39,26 @@
 			"envFile": "${workspaceFolder}/.env"
 		},
 		{
-			"name": "dev serve",
-			"type": "debugpy",
-			"request": "launch",
-			"program": "${workspaceFolder}/src/data/serve.py",
-			"envFile": "${workspaceFolder}/.env"
-		}
+            "name": "dev api",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/data/cli.py",
+            "envFile": "${workspaceFolder}/.env",
+            // "args": "${command:pickArgs}"
+            "args": "api"
+        },
+		{
+            "name": "dev go api",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceRoot}/src/api/main.go"
+        }
 	],
 	"compounds": [
 		{
 			"name": "dev all",
-			"configurations": ["dev vite", "dev serve"]
+			"configurations": ["dev vite", "dev api"]
 		}
 	]
 }

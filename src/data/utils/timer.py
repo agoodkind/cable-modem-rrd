@@ -1,7 +1,7 @@
 import time
 from contextlib import contextmanager
 
-from logger import Logger
+from utils.logger import Logger
 
 logger = Logger.create_logger()
 

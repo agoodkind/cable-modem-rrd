@@ -1,9 +1,9 @@
 from time import sleep
 
-from logger import Logger
 from parse import append_cable_data_to_db, parse_to_cable_data
 from scrape import scrape_to_bytes
-from timer import timer
+from utils.logger import Logger
+from utils.timer import timer
 
 logger = Logger.create_logger()
 

@@ -13,7 +13,6 @@ dist-ssr
 *.local
 
 # Editor directories and files
-.idea
 .DS_Store
 *.suo
 *.ntvs*
@@ -135,3 +134,4 @@ dmypy.json
 *.db
 CableInfo.txt
 .env
+config.yml
