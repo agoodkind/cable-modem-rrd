@@ -1,9 +1,9 @@
-from pdb import run
 import click
+from api import run as run_api
 from parse import parse_from_file
 from refresh import refresh_with_cycle
 from scrape import scrape_to_bytes, scrape_to_file
-from api import run as run_api
+
 
 class Config(object):
     def __init__(self, config_file: str):
@@ -23,13 +23,7 @@ class Config(object):
 
 
 @click.group()
-# @click.option("--cm_password", help="Password for the cable modem.", type=str, required=False)
-# @click.option("--cm_host", help="Host for the cable modem.", type=str, required=False)
-# @click.option("--pg_password", help="Password for the PostgreSQL database.", type=str, required=False)
-# @click.option("--pg_user", help="User for the PostgreSQL database.", type=str, required=False)
-# @click.option("--pg_host", help="Host for the PostgreSQL database.", type=str, required=False)
-# @click.option("--pg_port", help="Port for the PostgreSQL database.", type=str, required=False)
-# @click.option("--pg_db", help="Database for the PostgreSQL database.", type=str, required=False)
+
 @click.option("--config", help="Path to the config file.", type=str, default="config.yml", envvar="CONFIG_PATH")
 @click.pass_context
 def cli(ctx, config: str):
@@ -73,8 +67,8 @@ def refresh(cycles: int | None, sleep: int | None):
 
 
 @cli.command()
-@click.option("--file", help="Path to the file to parse.", type=str, required=False)
-def parse(file: str | None):
+@click.option("--file", help="Path to the file to parse.", type=str, default="CableInfo.txt")
+def parse(file: str):
     parse_from_file(file)
 
 

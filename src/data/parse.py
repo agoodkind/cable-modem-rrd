@@ -112,7 +112,7 @@ def parse_odfma_downstream_section_custom(section: str) -> pd.DataFrame:
     return df
 
 
-def parse_from_file(file_path: str = CM_FILEPATH) -> CableData:
+def parse_from_file(file_path: str) -> CableData:
     with open(file_path, "r") as file:
         logger.info(f"Parsing {file.name}")
         content = file.read()
