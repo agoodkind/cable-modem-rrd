@@ -57,5 +57,5 @@ func Init() {
 	router.GET("/downstream", handler.DownstreamRowsTODO)
 
 	// TODO make configurable
-	router.Run(":6969")
+	router.Run(":9549")
 }

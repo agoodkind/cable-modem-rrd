@@ -1,15 +1,22 @@
-.PHONY: setup clean
+.PHONY: clean
 
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
+PY_SRC := src
 
-setup: $(VENV)/bin/activate
-
-$(VENV)/bin/activate:
+activate:
 	python3 -m venv $(VENV)
-	$(PIP) install --upgrade pip
-	$(PIP) install .
+	. $(VENV)/bin/activate
+
+setup: activate
+	$(PIP) install '.'
+
+setup-editable: activate
+	$(PIP) install -I -e '.'
+
+run-refresh: setup
+	$(PYTHON) $(PY_SRC)/data/cli.py refresh --cycles 3 --sleep 15
 
 clean:
 	rm -rf $(VENV)

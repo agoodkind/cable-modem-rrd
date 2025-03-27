@@ -1,7 +1,14 @@
 package main
 
-import routes "cable-modem-rrd/api"
+import (
+	"os"
+
+	"cable-modem-rrd/cmd"
+)
 
 func main() {
-	routes.Init()
+	if err := cmd.Execute(); err != nil {
+		os.Exit(1)
+	}
+	// routes.Init()
 }
